@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harsh Tiwari — Builder & Learner</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+:root {
+  --ink: #0e0e12;
+  --paper: #f5f3ee;
+  --warm: #ede9e0;
+  --rule: #d6d0c4;
+  --accent: #c84b2f;
+  --accent2: #3a6ea8;
+  --accent3: #2a9d5c;
+  --faint: #9c9486;
+  --ink-soft: #3a3832;
+  --card-bg: #faf8f4;
+  --wip: #b05a10;
+  --font-display: 'Clash Display', sans-serif;
+  --font-body: 'Cabinet Grotesk', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+}
+ 
+html { scroll-behavior: smooth; }
+ 
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+ 
+/* GRAIN TEXTURE */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+ 
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(36px); } to { opacity:1; transform:translateY(0); } }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+@keyframes pulseRing { 0%,100%{box-shadow:0 0 18px 3px rgba(200,75,47,.25)} 50%{box-shadow:0 0 34px 10px rgba(200,75,47,.45)} }
+@keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+@keyframes livepulse { 0%,100%{box-shadow:0 0 0 0 rgba(42,157,92,0.5);} 50%{box-shadow:0 0 0 5px rgba(42,157,92,0);} }
+ 
+.fu { opacity:0; animation: fadeUp .8s ease forwards; }
+.d1{animation-delay:.1s} .d2{animation-delay:.28s} .d3{animation-delay:.46s}
+.d4{animation-delay:.64s} .d5{animation-delay:.82s} .d6{animation-delay:1s}
+ 
+/* ── NAV ── */
+nav {
+  position: fixed; top:0; left:0; right:0; z-index:1000;
+  padding: 0 5vw;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  background: rgba(245,243,238,0.85);
+  border-bottom: 1px solid var(--rule);
+}
+.nav-mark {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.nav-mark em { color: var(--accent); font-style: normal; }
+.nav-status { display:flex; align-items:center; gap:8px; font-family: var(--font-mono); font-size:0.7rem; color:var(--faint); font-weight:500; }
+.blink-dot { width:7px; height:7px; border-radius:50%; background:var(--accent3); animation:livepulse 2s ease-in-out infinite; }
+.nav-pills { display: flex; gap: 4px; list-style: none; }
+.nav-pills a {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--faint);
+  text-decoration: none;
+  padding: 6px 13px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+.nav-pills a:hover { color: var(--ink); border-color: var(--rule); background: var(--warm); }
+@media(max-width:760px){ .nav-status{display:none;} .nav-pills{display:none;} }
+ 
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 5vw; }
+ 
+/* ── HERO ── */
+#hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.hero {
+  position: relative;
+  min-height: 100vh;
+  padding: 150px 5vw 80px;
+  display: flex; flex-direction: column; justify-content: center;
+  overflow: hidden;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+.eyebrow { display:flex; align-items:center; gap:12px; margin-bottom:26px; position:relative; z-index:2; }
+.eyebrow-rule { width:36px; height:1px; background:var(--accent); flex-shrink:0; }
+.eyebrow-text { font-family: var(--font-mono); font-size:clamp(.68rem,1.4vw,.78rem); color:var(--accent); font-weight:500; letter-spacing:.12em; text-transform:uppercase; }
+.hero-name {
+  font-family: var(--font-display); font-weight:700;
+  font-size:clamp(3.2rem,9vw,7rem);
+  line-height:.95; letter-spacing:-.03em; margin-bottom:26px;
+  position: relative; z-index: 2;
+}
+.hero-name .solid { color:var(--ink); }
+.hero-name .outline { -webkit-text-stroke: 2px var(--accent); color: transparent; }
+.hero-tagline { font-size:clamp(.95rem,2vw,1.12rem); color:var(--ink-soft); max-width:480px; margin-bottom:44px; font-weight:400; line-height:1.7; position:relative; z-index:2; }
+.hero-stats { display:flex; flex-wrap:wrap; gap:1rem 3rem; position:relative; z-index:2; }
+.stat-number { font-family: var(--font-display); font-weight:700; font-size:clamp(1.4rem,3.6vw,2.1rem); color:var(--ink); line-height:1; }
+.stat-accent { color: var(--accent); }
+.stat-label { font-family: var(--font-mono); font-size:clamp(.6rem,1.1vw,.68rem); color:var(--faint); text-transform:uppercase; letter-spacing:.1em; margin-top:5px; font-weight:500; }
+.scroll-hint { position:absolute; bottom:32px; right:5vw; font-family: var(--font-mono); font-size:.66rem; color:var(--faint); letter-spacing:.2em; text-transform:uppercase; writing-mode:vertical-rl; opacity:.6; display:flex; align-items:center; gap:10px; }
+.scroll-hint::before { content:''; display:block; width:1px; height:46px; background:var(--rule); }
+@media(max-width:900px){.scroll-hint{display:none}}
+ 
+/* ── 3D CANVAS SEPARATORS ── */
+.canvas3d-wrap { position: relative; width: 100%; height: 260px; margin: -30px 0; }
+canvas.section-canvas { display:block; width:100%!important; height:100%!important; }
+ 
+/* ── SECTION COMMON ── */
+.section { padding: 88px 0; border-bottom: 1px solid var(--rule); }
+.section:last-of-type { border-bottom: none; }
+.sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 44px; }
+.sec-num { font-family: var(--font-mono); font-size: 0.68rem; color: var(--faint); opacity: 0.6; }
+.sec-title { font-family: var(--font-display); font-size: 1.7rem; font-weight: 600; letter-spacing: -0.03em; color: var(--ink); }
+.sec-rule { flex: 1; height: 1px; background: var(--rule); }
+.section-label { font-family: var(--font-mono); font-size:clamp(.62rem,1.2vw,.7rem); color:var(--accent); text-transform:uppercase; letter-spacing:.16em; font-weight:600; margin-bottom:14px; }
+.section-title-lg { font-family: var(--font-display); font-size:clamp(1.7rem,4.4vw,3rem); font-weight:700; line-height:1.08; letter-spacing:-.02em; margin-bottom:48px; color: var(--ink); }
+section.free { padding: 92px 5vw; max-width:1040px; margin:0 auto; }
+ 
+/* ── STORY (ABOUT) ── */
+.story-grid { display:grid; grid-template-columns:1fr 1.4fr; gap:52px; align-items:start; }
+.story-card { background:var(--card-bg); border:1px solid var(--rule); border-radius:18px; padding:32px; position:sticky; top:96px; }
+.story-avatar { width:60px;height:60px;border-radius:14px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:24px; }
+.meta-row { display:flex;align-items:flex-start;gap:10px;margin-bottom:14px; }
+.meta-icon { color:var(--accent);font-size:.8rem;margin-top:3px;flex-shrink:0; }
+.meta-label { font-family: var(--font-mono); font-size:.65rem;color:var(--faint);text-transform:uppercase;letter-spacing:.1em; }
+.meta-val { font-size:.86rem;color:var(--ink);font-weight:500; }
+.meta-val a { color: var(--accent2); text-decoration: none; }
+.meta-val a:hover { text-decoration: underline; }
+.story-chapters { display:flex;flex-direction:column;gap:44px; }
+.chapter { position:relative; }
+.chapter-num { font-family: var(--font-display);font-size:5.4rem;font-weight:700;color:var(--accent);opacity:.08;line-height:1;position:absolute;top:-16px;left:-8px;pointer-events:none;user-select:none; }
+.chapter-tag { font-family: var(--font-mono); font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-weight:600;margin-bottom:10px;position:relative; }
+.chapter-title { font-family: var(--font-display);font-size:clamp(1.1rem,2.6vw,1.45rem);font-weight:700;margin-bottom:10px;position:relative;color:var(--ink); }
+.chapter-body { font-size:clamp(.85rem,1.7vw,.93rem);color:var(--ink-soft);line-height:1.78;position:relative; }
+.chapter-body strong { color: var(--ink); }
+@media(max-width:900px){.story-grid{grid-template-columns:1fr}.story-card{position:static}}
+ 
+/* ── PHOTO SECTION ── */
+.photo-section { display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:70px 5vw 90px;position:relative;overflow:hidden; }
+#photo-canvas { position:absolute;inset:0;width:100%;height:100%;pointer-events:none; }
+.photo-ring-wrap { position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:26px;animation:floatY 4s ease-in-out infinite; z-index:2; }
+.photo-ring { position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--accent);animation:pulseRing 3s ease-in-out infinite; }
+.photo-ring-outer { position:absolute;inset:-18px;border-radius:50%;border:1px solid rgba(200,75,47,.18); }
+.photo-circle { width:180px;height:180px;border-radius:50%;background:var(--card-bg);border:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;z-index:2; }
+.photo-inner-ring { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed rgba(200,75,47,.28);border-radius:50%;width:154px;height:154px; }
+.photo-icon { font-size:1.5rem;opacity:.4;color:var(--accent); }
+.photo-ph-text { font-family: var(--font-mono); font-size:.56rem;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;font-weight:500; }
+.photo-name { font-family: var(--font-display);font-size:clamp(1.8rem,4.8vw,2.6rem);font-weight:700;letter-spacing:-.02em;position:relative;z-index:2; color:var(--ink); }
+.photo-title { font-family: var(--font-mono); font-size:clamp(.7rem,1.4vw,.8rem);color:var(--faint);letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-top:8px;position:relative;z-index:2; }
+.photo-title span{color:var(--accent)}
+@media(max-width:480px){.photo-ring-wrap{width:170px;height:170px}.photo-circle{width:150px;height:150px}.photo-inner-ring{width:126px;height:126px}}
+ 
+/* ═══ PROJECTS ═══ */
+.proj-note { font-family: var(--font-mono); font-size: 0.73rem; color: var(--faint); margin-bottom: 32px; padding: 10px 16px; border-left: 2px solid var(--accent); background: rgba(200,75,47,0.04); border-radius: 0 8px 8px 0; }
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+.proj-card {
+  background: var(--card-bg); border: 1px solid var(--rule); border-top: 3px solid transparent;
+  border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;
+  transition: transform .3s, border-top-color .3s, box-shadow .3s;
+  cursor: pointer; text-decoration: none; color: inherit;
+}
+.proj-card:hover { transform: translateY(-7px); box-shadow: 0 22px 52px rgba(14,14,18,0.12); border-top-color: var(--accent); }
+.proj-card.wip:hover { border-top-color: var(--wip); box-shadow: 0 22px 52px rgba(176,90,16,0.14); }
+.proj-thumb { height: 130px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.proj-thumb-bg { position: absolute; inset: 0; opacity: 0.9; }
+.p-flowlytics .proj-thumb-bg { background: linear-gradient(135deg,#0f2027,#203a43,#2c5364); }
+.p-orbit .proj-thumb-bg { background: linear-gradient(135deg,#1a0a2e,#2d1b6b,#3a1078); }
+.p-creonex .proj-thumb-bg { background: linear-gradient(135deg,#141414,#222,#2c2c2c); }
+.p-trade .proj-thumb-bg { background: linear-gradient(135deg,#001628,#002a4a,#003d6b); }
+.p-mono .proj-thumb-bg { background: linear-gradient(135deg,#0a0a0a,#181818,#111); }
+.proj-thumb-word { font-family: var(--font-display); font-size: 2.6rem; font-weight: 700; color: rgba(255,255,255,0.07); letter-spacing: -0.04em; position: absolute; user-select: none; }
+.proj-thumb-icon { position: relative; z-index: 1; font-size: 2rem; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
+.proj-status { position: absolute; top: 10px; right: 10px; font-family: var(--font-mono); font-size: 0.62rem; padding: 4px 9px; border-radius: 20px; z-index: 2; }
+.status-live { background: rgba(42,157,92,0.18); color: #4ade80; border: 1px solid rgba(42,157,92,0.35); }
+.status-wip { background: rgba(176,90,16,0.2); color: #fb923c; border: 1px solid rgba(176,90,16,0.4); animation: wipblink 2.5s ease-in-out infinite; }
+@keyframes wipblink { 0%,100%{opacity:1;} 50%{opacity:0.55;} }
+.proj-body { padding: 18px 20px 20px; flex:1; display:flex; flex-direction:column; }
+.proj-name { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 8px; }
+.proj-desc { font-size: 0.83rem; color: var(--faint); line-height: 1.6; flex: 1; margin-bottom: 14px; }
+.proj-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+.proj-tag { font-family: var(--font-mono); font-size: 0.64rem; padding: 3px 8px; border-radius: 4px; background: var(--warm); color: var(--faint); border: 1px solid var(--rule); }
+.proj-link-row { display: flex; align-items: center; justify-content: space-between; }
+.proj-arrow { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.71rem; color: var(--accent2); transition: gap 0.2s; }
+.proj-card.wip .proj-arrow { color: var(--wip); }
+.proj-card:hover .proj-arrow { gap: 10px; }
+ 
+/* ═══ SKILLS (PILLS) ═══ */
+.skills-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; margin-bottom: 44px; }
+.skill-group-label { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.skill-group-label::after { content:''; flex:1; height:1px; background:var(--rule); }
+.pills-wrap { display:flex;flex-wrap:wrap;gap:10px; }
+.pill { padding:9px 17px;border:1px solid var(--rule);border-radius:40px;font-family: var(--font-mono);font-size:clamp(.7rem,1.3vw,.78rem);color:var(--ink-soft);font-weight:500;transition:border-color .25s,color .25s,background .25s,transform .2s;cursor:default;background:var(--card-bg); }
+.pill:hover { border-color:var(--accent);color:var(--accent);background:rgba(200,75,47,.06);transform:translateY(-2px); }
+.pill.hot { border-color:rgba(200,75,47,.4);color:var(--accent);background:rgba(200,75,47,.06); }
+.pill.hot:hover { border-color:var(--accent);background:rgba(200,75,47,.12); }
+ 
+/* ═══ STRENGTHS ═══ */
+.strengths-wrap { margin-top: 8px; }
+ 
+/* ═══ WHY ═══ */
+.why-card { background:var(--card-bg);border:1px solid var(--rule);border-radius:22px;padding:clamp(32px,6vw,68px);position:relative;overflow:hidden; }
+.why-card::after { content:'';position:absolute;top:-70px;right:-70px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(200,75,47,.1) 0%,transparent 65%);pointer-events:none; }
+.why-quote-mark { font-family: var(--font-display);font-size:6.5rem;font-weight:700;color:var(--accent);opacity:.14;line-height:.5;margin-bottom:20px;display:block; }
+.why-quote { font-family: var(--font-display);font-size:clamp(1.2rem,3vw,2rem);font-weight:600;line-height:1.4;max-width:760px;position:relative;z-index:2;letter-spacing:-.01em;color:var(--ink); }
+.why-attr { margin-top:24px;font-family: var(--font-mono); font-size:.8rem;color:var(--faint);font-weight:500;letter-spacing:.06em;position:relative;z-index:2; }
+.why-attr::before { content:'— ';color:var(--accent); }
+ 
+/* ═══ CERTIFICATIONS ═══ */
+.certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(275px, 1fr)); gap: 16px; }
+.cert-card { background: var(--card-bg); border: 1px solid var(--rule); border-top: 3px solid transparent; border-radius: 14px; overflow: hidden; transition: transform .3s, border-top-color .3s, box-shadow .3s; cursor: pointer; }
+.cert-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(14,14,18,0.1); border-top-color: var(--accent2); }
+.cert-stripe { display:none; }
+.cert-inner { padding: 20px 22px; }
+.cert-from { font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-bottom: 7px; }
+.cert-name { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); line-height: 1.3; margin-bottom: 10px; }
+.cert-chips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:12px; }
+.cert-chip { font-family: var(--font-mono); font-size: 0.62rem; padding: 2px 7px; background: rgba(58,110,168,0.08); color: var(--accent2); border: 1px solid rgba(58,110,168,0.2); border-radius: 4px; }
+.cert-foot { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.66rem; color: var(--faint); border-top: 1px solid var(--rule); padding-top: 10px; }
+.cert-verified { display: flex; align-items: center; gap: 4px; color: var(--accent3); }
+ 
+/* ═══ INTERESTS ═══ */
+.interests-flex { display: flex; flex-wrap: wrap; gap: 10px; }
+ 
+/* ═══ EDUCATION ═══ */
+.edu-box { background: var(--card-bg); border: 1px solid var(--rule); border-radius: 16px; padding: 28px 32px; display: flex; gap: 20px; align-items: flex-start; }
+.edu-icon-wrap { width: 52px;height:52px; border-radius: 12px; background: var(--warm); border: 1px solid var(--rule); display: flex;align-items:center;justify-content:center; font-size: 1.5rem; flex-shrink: 0; }
+.edu-degree { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; color: var(--ink); }
+.edu-board { font-size: 0.85rem; color: var(--faint); margin-bottom: 10px; }
+.edu-next { font-family: var(--font-mono); font-size: 0.73rem; color: var(--accent3); display: flex; align-items: center; gap: 6px; }
+.edu-next::before { content: '→'; }
+ 
+/* ═══ CONTACT ═══ */
+.contact-section { text-align:center;padding:130px 5vw;position:relative;overflow:hidden; }
+#contact-canvas { position:absolute;inset:0;width:100%;height:100%;pointer-events:none; }
+.contact-heading { font-family: var(--font-display);font-size:clamp(2rem,5.6vw,3.8rem);font-weight:700;letter-spacing:-.022em;line-height:1.08;margin-bottom:18px;position:relative;z-index:2;color:var(--ink); }
+.contact-sub { font-size:clamp(.85rem,1.7vw,.97rem);color:var(--ink-soft);margin-bottom:40px;position:relative;z-index:2; }
+.contact-links { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; position:relative; z-index:2; }
+.btn-primary { display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-family: var(--font-display);font-weight:600;font-size:clamp(.88rem,1.7vw,.98rem);padding:15px 34px;border-radius:50px;text-decoration:none;transition:transform .25s,box-shadow .25s,background .25s;letter-spacing:.02em; }
+.btn-primary:hover { transform:translateY(-3px);box-shadow:0 18px 40px rgba(200,75,47,.35); }
+.btn-secondary { display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--ink);font-family: var(--font-mono);font-weight:500;font-size:0.82rem;padding:14px 28px;border-radius:50px;text-decoration:none;border:1px solid var(--rule);transition:all .25s; }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform:translateY(-3px); }
+@media(max-width:480px){.btn-primary,.btn-secondary{width:100%;justify-content:center}}
+ 
+/* ═══ FOOTER ═══ */
+footer { border-top:1px solid var(--rule);padding:28px 5vw;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px; }
+.footer-info { font-family: var(--font-mono); font-size:clamp(.7rem,1.2vw,.78rem);color:var(--faint);font-weight:500; }
+.footer-info strong { color: var(--accent); }
+.footer-tagline { font-family: var(--font-mono); font-size:clamp(.62rem,1.1vw,.7rem);color:var(--accent);font-weight:600;letter-spacing:.13em;text-transform:uppercase; }
+@media(max-width:480px){footer{flex-direction:column;align-items:flex-start}}
+ 
+/* ═══ MODAL ═══ */
+.modal-wrap { display: none; position: fixed; inset: 0; z-index: 1500; background: rgba(14,14,18,0.6); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 20px; }
+.modal-wrap.open { display: flex; }
+.modal-box { background: var(--paper); border: 1px solid var(--rule); border-radius: 18px; max-width: 540px; width: 100%; padding: 36px; position: relative; animation: mIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes mIn { from{opacity:0;transform:scale(0.9) translateY(20px);} to{opacity:1;transform:none;} }
+.modal-x { position: absolute; top:16px;right:16px; width:32px;height:32px; background:var(--warm); border:1px solid var(--rule); border-radius:8px; cursor:pointer; font-size:0.9rem; display:flex;align-items:center;justify-content:center; color:var(--faint); transition:all 0.15s; }
+.modal-x:hover { background:var(--ink);color:var(--paper);border-color:var(--ink); }
+.modal-from { font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+.modal-title { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; letter-spacing: -0.03em; color: var(--ink); margin-bottom: 14px; line-height: 1.15; }
+.modal-desc { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.7; margin-bottom: 20px; }
+.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-kv { background: var(--warm); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; }
+.modal-k { font-family: var(--font-mono); font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); margin-bottom: 3px; }
+.modal-v { font-size: 0.85rem; color: var(--ink); font-weight: 500; font-family: var(--font-mono); }
+ 
+/* PRINT FAB */
+.fab { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: var(--paper); border: none; border-radius: 50px; padding: 12px 22px; font-family: var(--font-mono); font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 6px 28px rgba(14,14,18,0.22); transition: all 0.2s; z-index: 50; }
+.fab:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(14,14,18,0.3); background: var(--accent); }
+ 
+@media(max-width:640px){
+  .wrap{padding:0 20px;}
+  section.free{padding:80px 20px;}
+  .skills-cols{grid-template-columns:1fr;}
+  .modal-grid{grid-template-columns:1fr;}
+  .projects-grid,.certs-grid{grid-template-columns:1fr;}
+}
+@media print {
+  nav,.fab,.modal-wrap,.canvas3d-wrap,#hero-canvas,#photo-canvas,#contact-canvas{display:none!important;}
+  .fu{opacity:1;animation:none;transform:none;}
+  body{background:#fff;}
+}
+</style>
+</head>
+<body>
+ 
+<!-- NAV -->
+<nav>
+  <div class="nav-mark">HT<em>.</em></div>
+  <div class="nav-status"><span class="blink-dot"></span> Actively Building</div>
+  <ul class="nav-pills">
+    <li><a href="#about">about</a></li>
+    <li><a href="#projects">projects</a></li>
+    <li><a href="#skills">skills</a></li>
+    <li><a href="#certs">certs</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+</nav>
+ 
+<!-- HERO -->
+<div class="hero">
+  <canvas id="hero-canvas"></canvas>
+ 
+  <div class="eyebrow fu d1">
+    <div class="eyebrow-rule"></div>
+    <span class="eyebrow-text">19 · Patna, Bihar, India · Python Developer & Product Builder</span>
+  </div>
+ 
+  <h1 class="hero-name fu d2">
+    <span class="solid">Harsh<br></span>
+    <span class="outline">Tiwari.</span>
+  </h1>
+ 
+  <p class="hero-tagline fu d3">Product builder in progress. Shipping real apps with AI-assisted development while learning Python, data analysis, SQL, and automation from the ground up.</p>
+ 
+  <div class="hero-stats fu d4">
+    <div class="stat-item">
+      <div class="stat-number">19</div>
+      <div class="stat-label">Years Old</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">2<span class="stat-accent">+</span></div>
+      <div class="stat-label">Yrs Vibe Coding</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">3<span class="stat-accent">×</span></div>
+      <div class="stat-label">Sites Shipped</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">Py</div>
+      <div class="stat-label">Core Stack</div>
+    </div>
+  </div>
+ 
+  <div class="scroll-hint">Scroll</div>
+</div>
+ 
+<!-- STORY / ABOUT -->
+<div class="wrap" id="about">
+  <section class="section">
+    <div class="sec-head fu">
+      <span class="sec-num">00</span>
+      <h2 class="sec-title">About Me</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="story-grid">
+      <div class="story-card fu">
+        <div class="story-avatar">HT</div>
+        <div class="meta-row"><span class="meta-icon">◎</span><div><div class="meta-label">Name</div><div class="meta-val">Harsh Tiwari</div></div></div>
+        <div class="meta-row"><span class="meta-icon">◎</span><div><div class="meta-label">Age</div><div class="meta-val">19 years old</div></div></div>
+        <div class="meta-row"><span class="meta-icon">◎</span><div><div class="meta-label">Based in</div><div class="meta-val">Patna, Bihar, India</div></div></div>
+        <div class="meta-row"><span class="meta-icon">◎</span><div><div class="meta-label">Role</div><div class="meta-val">Python Developer & Vibe Coder</div></div></div>
+        <div class="meta-row"><span class="meta-icon">◎</span><div><div class="meta-label">Experience</div><div class="meta-val" style="color:var(--accent);font-weight:700">2+ Yrs · Agency-style Delivery</div></div></div>
+        <div class="meta-row"><span class="meta-icon">◎</span><div><div class="meta-label">Email</div><div class="meta-val"><a href="mailto:harsh.tiwari7112@gmail.com">harsh.tiwari7112@gmail.com</a></div></div></div>
+        <div class="meta-row"><span class="meta-icon">◎</span><div><div class="meta-label">GitHub</div><div class="meta-val"><a href="https://github.com/Harsh7112" target="_blank">github.com/Harsh7112</a></div></div></div>
+        <div class="meta-row"><span class="meta-icon">◎</span><div><div class="meta-label">Phone</div><div class="meta-val">+91 7070538208</div></div></div>
+      </div>
+      <div class="story-chapters fu">
+        <div class="chapter"><div class="chapter-num">01</div><div class="chapter-tag">The Foundation</div><h3 class="chapter-title">Fresh Out of Class 12, Fully Focused</h3><p class="chapter-body">Recently completed <strong>Class 12 (PCM)</strong> and fully focused on building a technical career. Strong interest in <strong>technology, problem-solving, and continuous learning</strong> — with the work ethic to back it up.</p></div>
+        <div class="chapter"><div class="chapter-num">02</div><div class="chapter-tag">My Approach</div><h3 class="chapter-title">Plan First, Then Ship Step by Step</h3><p class="chapter-body">When I encounter something unfamiliar, I <strong>create a plan first</strong> — identify what I need to learn, then work step by step. This has built strong <strong>analytical and self-learning</strong> muscle. Comfortable in both <strong>solo and team</strong> settings, I take initiative when needed and adapt quickly — currently learning across <strong>programming, data, automation</strong> and emerging tech simultaneously.</p></div>
+        <div class="chapter"><div class="chapter-num">03</div><div class="chapter-tag">The Mission</div><h3 class="chapter-title">Solve, Impact, Grow</h3><p class="chapter-body">To become a highly skilled professional who can <strong>solve complex problems</strong>, create meaningful impact, and grow into greater responsibilities over time — starting by shipping things now.</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+ 
+<!-- 3D SEPARATOR 1 -->
+<div class="canvas3d-wrap" id="sep1-wrap">
+  <canvas id="sep1-canvas" class="section-canvas"></canvas>
+</div>
+ 
+<!-- PHOTO SECTION -->
+<section class="photo-section" id="photo-sec">
+  <canvas id="photo-canvas"></canvas>
+  <div class="photo-ring-wrap fu">
+    <div class="photo-ring"></div>
+    <div class="photo-ring-outer"></div>
+    <div class="photo-circle">
+      <div class="photo-inner-ring">
+        <div class="photo-icon">◉</div>
+        <div class="photo-ph-text">[ Your Photo ]</div>
+      </div>
+    </div>
+  </div>
+  <div class="photo-name fu d2">Harsh Tiwari</div>
+  <div class="photo-title fu d3">Builder & Learner · <span>Python Dev</span></div>
+</section>
+ 
+<!-- PROJECTS -->
+<div class="wrap" id="projects">
+  <section class="section">
+    <div class="sec-head fu">
+      <span class="sec-num">01</span>
+      <h2 class="sec-title">Vibe Coded Projects</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="proj-note fu d1">Built with AI-assisted tools (Base44, Lovable) — real products, real users, learning by shipping.</div>
+    <div class="projects-grid">
+ 
+      <a href="https://flowlytics.base44.app/" target="_blank" class="proj-card p-flowlytics fu d1">
+        <div class="proj-thumb">
+          <div class="proj-thumb-bg"></div>
+          <div class="proj-thumb-word">FLOW</div>
+          <div class="proj-thumb-icon">📊</div>
+          <span class="proj-status status-live">● live</span>
+        </div>
+        <div class="proj-body">
+          <div class="proj-name">Flowlytics</div>
+          <p class="proj-desc">All-in-one productivity & data tracker — manages 5 data types including habits. Organize, track, and share work for teams and solo users.</p>
+          <div class="proj-tags">
+            <span class="proj-tag">Productivity</span>
+            <span class="proj-tag">Habits</span>
+            <span class="proj-tag">Base44</span>
+          </div>
+          <div class="proj-link-row">
+            <span class="proj-arrow">flowlytics.base44.app <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+          </div>
+        </div>
+      </a>
+ 
+      <a href="https://influenceorbit-org.lovable.app" target="_blank" class="proj-card p-orbit fu d2">
+        <div class="proj-thumb">
+          <div class="proj-thumb-bg"></div>
+          <div class="proj-thumb-word">ORBIT</div>
+          <div class="proj-thumb-icon">🌐</div>
+          <span class="proj-status status-live">● live</span>
+        </div>
+        <div class="proj-body">
+          <div class="proj-name">InfluenceOrbit</div>
+          <p class="proj-desc">India's strategic influencer marketing agency — connects brands with vetted creators for ROI-driven campaigns. No upfront fees.</p>
+          <div class="proj-tags">
+            <span class="proj-tag">Marketing</span>
+            <span class="proj-tag">India</span>
+            <span class="proj-tag">Lovable</span>
+          </div>
+          <div class="proj-link-row">
+            <span class="proj-arrow">influenceorbit-org.lovable.app <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+          </div>
+        </div>
+      </a>
+ 
+      <a href="https://creonex-command-hub.base44.app" target="_blank" class="proj-card p-creonex fu d3">
+        <div class="proj-thumb">
+          <div class="proj-thumb-bg"></div>
+          <div class="proj-thumb-word">CREONEX</div>
+          <div class="proj-thumb-icon">🛰️</div>
+          <span class="proj-status status-live">● live</span>
+        </div>
+        <div class="proj-body">
+          <div class="proj-name">Creonex Command Hub</div>
+          <p class="proj-desc">Centralized command hub dashboard — manage workflows, operations, and tasks from a unified control panel.</p>
+          <div class="proj-tags">
+            <span class="proj-tag">Dashboard</span>
+            <span class="proj-tag">Ops</span>
+            <span class="proj-tag">Base44</span>
+          </div>
+          <div class="proj-link-row">
+            <span class="proj-arrow">creonex-command-hub.base44.app <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+          </div>
+        </div>
+      </a>
+ 
+      <a href="https://trade-flow-1.base44.app" target="_blank" class="proj-card p-trade fu d4">
+        <div class="proj-thumb">
+          <div class="proj-thumb-bg"></div>
+          <div class="proj-thumb-word">TRADE</div>
+          <div class="proj-thumb-icon">📈</div>
+          <span class="proj-status status-live">● live</span>
+        </div>
+        <div class="proj-body">
+          <div class="proj-name">Trade Flow</div>
+          <p class="proj-desc">Trading analytics and flow tracker — visualizes market data and trade movements for smarter decision-making.</p>
+          <div class="proj-tags">
+            <span class="proj-tag">Finance</span>
+            <span class="proj-tag">Analytics</span>
+            <span class="proj-tag">Base44</span>
+          </div>
+          <div class="proj-link-row">
+            <span class="proj-arrow">trade-flow-1.base44.app <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+          </div>
+        </div>
+      </a>
+ 
+      <a href="https://monoline-1.lovable.app" target="_blank" class="proj-card p-mono wip fu d5">
+        <div class="proj-thumb">
+          <div class="proj-thumb-bg"></div>
+          <div class="proj-thumb-word">MONO</div>
+          <div class="proj-thumb-icon">👟</div>
+          <span class="proj-status status-wip">⚡ in progress</span>
+        </div>
+        <div class="proj-body">
+          <div class="proj-name">Monoline</div>
+          <p class="proj-desc">Premium performance footwear brand — running, lifestyle and trail shoes. "Performance product for the relentless." Storefront currently in build.</p>
+          <div class="proj-tags">
+            <span class="proj-tag">E-Commerce</span>
+            <span class="proj-tag">Brand</span>
+            <span class="proj-tag">Lovable</span>
+          </div>
+          <div class="proj-link-row">
+            <span class="proj-arrow">monoline-1.lovable.app <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></span>
+          </div>
+        </div>
+      </a>
+ 
+    </div>
+  </section>
+</div>
+ 
+<!-- 3D SEPARATOR 2 -->
+<div class="canvas3d-wrap" id="sep2-wrap">
+  <canvas id="sep2-canvas" class="section-canvas"></canvas>
+</div>
+ 
+<!-- SKILLS -->
+<div class="wrap" id="skills">
+  <section class="section">
+    <div class="sec-head fu">
+      <span class="sec-num">02</span>
+      <h2 class="sec-title">Skills</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="skills-cols fu d1">
+      <div>
+        <div class="skill-group-label">Proficient</div>
+        <div class="pills-wrap">
+          <span class="pill hot">Python</span>
+          <span class="pill hot">NumPy</span>
+          <span class="pill hot">Pandas</span>
+          <span class="pill hot">Matplotlib</span>
+          <span class="pill hot">Seaborn</span>
+          <span class="pill hot">JSON</span>
+          <span class="pill hot">Data Analytics</span>
+          <span class="pill hot">AI-Dev</span>
+          <span class="pill hot">Git / GitHub</span>
+          <span class="pill hot">n8n</span>
+        </div>
+      </div>
+      <div>
+        <div class="skill-group-label">Currently Learning</div>
+        <div class="pills-wrap">
+          <span class="pill">HTML & CSS</span>
+          <span class="pill">JavaScript</span>
+          <span class="pill">SQL</span>
+          <span class="pill">Full-Stack Dev</span>
+          <span class="pill">Automation Eng.</span>
+        </div>
+      </div>
+    </div>
+    <div class="strengths-wrap fu d2">
+      <div class="skill-group-label" style="margin-top:8px;">Core Strengths</div>
+      <div class="pills-wrap">
+        <span class="pill">🧩 Systems Thinking</span>
+        <span class="pill">⚡ Fast Learning</span>
+        <span class="pill">🎯 Strategic Planning</span>
+        <span class="pill">🔍 Workflow Analysis</span>
+        <span class="pill">🚀 Entrepreneurial Mindset</span>
+        <span class="pill">🤝 Leadership & Initiative</span>
+        <span class="pill">🔄 Adaptability</span>
+      </div>
+    </div>
+  </section>
+</div>
+ 
+<!-- WHY -->
+<section class="free" id="why">
+  <div class="section-label fu">My Drive</div>
+  <h2 class="section-title-lg fu">What keeps me going.</h2>
+  <div class="why-card fu">
+    <span class="why-quote-mark">"</span>
+    <p class="why-quote">When I hit something unfamiliar, I make a plan, learn what's missing, and ship — one step at a time. That's how a fresh start turns into real, live products.</p>
+    <div class="why-attr">Harsh Tiwari</div>
+  </div>
+</section>
+ 
+<!-- CERTIFICATIONS -->
+<div class="wrap" id="certs">
+  <section class="section">
+    <div class="sec-head fu">
+      <span class="sec-num">03</span>
+      <h2 class="sec-title">Certifications</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="certs-grid">
+ 
+      <div class="cert-card fu d1" onclick="showModal('forage-dl')">
+        <div class="cert-inner">
+          <div class="cert-from">Forage</div>
+          <div class="cert-name">Data Labeling Job Simulation</div>
+          <div class="cert-chips">
+            <span class="cert-chip">Batch Labeling</span>
+            <span class="cert-chip">PII Awareness</span>
+            <span class="cert-chip">QA</span>
+          </div>
+          <div class="cert-foot">
+            <span>June 2026</span>
+            <span class="cert-verified">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="cert-card fu d2" onclick="showModal('bcg')">
+        <div class="cert-inner">
+          <div class="cert-from">BCG × Forage</div>
+          <div class="cert-name">Intro to Data for Decision Makers</div>
+          <div class="cert-chips">
+            <span class="cert-chip">Data Analysis</span>
+            <span class="cert-chip">Decision Making</span>
+          </div>
+          <div class="cert-foot">
+            <span>May 2026</span>
+            <span class="cert-verified">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="cert-card fu d3" onclick="showModal('tata')">
+        <div class="cert-inner">
+          <div class="cert-from">Tata × Forage</div>
+          <div class="cert-name">GenAI Powered Data Analytics</div>
+          <div class="cert-chips">
+            <span class="cert-chip">GenAI</span>
+            <span class="cert-chip">Analytics</span>
+          </div>
+          <div class="cert-foot">
+            <span>May 2026</span>
+            <span class="cert-verified">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="cert-card fu d4" onclick="showModal('deloitte')">
+        <div class="cert-inner">
+          <div class="cert-from">Deloitte × Forage</div>
+          <div class="cert-name">Data Analytics Job Simulation</div>
+          <div class="cert-chips">
+            <span class="cert-chip">Analytics</span>
+            <span class="cert-chip">Consulting</span>
+          </div>
+          <div class="cert-foot">
+            <span>May 2026</span>
+            <span class="cert-verified">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="cert-card fu d5" onclick="showModal('n8n')">
+        <div class="cert-inner">
+          <div class="cert-from">LetsUpgrade · NSDC · GDG MAD</div>
+          <div class="cert-name">Automate Everything With n8n</div>
+          <div class="cert-chips">
+            <span class="cert-chip">n8n</span>
+            <span class="cert-chip">Automation</span>
+            <span class="cert-chip">Workflows</span>
+          </div>
+          <div class="cert-foot">
+            <span>May 15, 2026</span>
+            <span class="cert-verified">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="cert-card fu d6" onclick="showModal('sql')">
+        <div class="cert-inner">
+          <div class="cert-from">LetsUpgrade · NSDC · GDG MAD</div>
+          <div class="cert-name">SQL Bootcamp</div>
+          <div class="cert-chips">
+            <span class="cert-chip">SQL</span>
+            <span class="cert-chip">Databases</span>
+            <span class="cert-chip">Queries</span>
+          </div>
+          <div class="cert-foot">
+            <span>May 4–6, 2026</span>
+            <span class="cert-verified">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+ 
+    </div>
+  </section>
+</div>
+ 
+<!-- INTERESTS -->
+<div class="wrap" id="interests">
+  <section class="section">
+    <div class="sec-head fu">
+      <span class="sec-num">04</span>
+      <h2 class="sec-title">Career Interests</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="pills-wrap fu d1">
+      <span class="pill">Full-Stack Development</span>
+      <span class="pill">Automation Engineering</span>
+      <span class="pill">AI Workflows</span>
+      <span class="pill">SaaS Products</span>
+      <span class="pill">Dashboards & Analytics</span>
+      <span class="pill">Product Engineering</span>
+      <span class="pill">Entrepreneurship</span>
+      <span class="pill">Data Science</span>
+    </div>
+  </section>
+</div>
+ 
+<!-- EDUCATION -->
+<div class="wrap" id="edu">
+  <section class="section">
+    <div class="sec-head fu">
+      <span class="sec-num">05</span>
+      <h2 class="sec-title">Education</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="edu-box fu d1">
+      <div class="edu-icon-wrap">🎓</div>
+      <div>
+        <div class="edu-degree">Class 12 — PCM</div>
+        <div class="edu-board">Bihar Board · Science Stream</div>
+        <div class="edu-next">Preparing for higher studies & technical career development</div>
+      </div>
+    </div>
+  </section>
+</div>
+ 
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <canvas id="contact-canvas"></canvas>
+  <div class="section-label fu" style="display:block;text-align:center">Let's Connect</div>
+  <h2 class="contact-heading fu">Let's build<br>something real.</h2>
+  <p class="contact-sub fu d2">Have a project, an idea, or just want to talk shop? I'm all ears.</p>
+  <div class="contact-links fu d3">
+    <a href="mailto:harsh.tiwari7112@gmail.com" class="btn-primary">Say Hello →</a>
+    <a href="https://github.com/Harsh7112" target="_blank" class="btn-secondary">github.com/Harsh7112</a>
+  </div>
+</section>
+ 
+<footer>
+  <div class="footer-info">Designed & built · <strong>Harsh Tiwari</strong> · 2026</div>
+  <div class="footer-tagline">Learning in public, shipping by doing</div>
+</footer>
+ 
+<button class="fab" onclick="window.print()">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+  Save PDF
+</button>
+ 
+<!-- MODAL -->
+<div class="modal-wrap" id="mw" onclick="closeM(event)">
+  <div class="modal-box">
+    <button class="modal-x" onclick="closeM2()">✕</button>
+    <div id="mb"></div>
+  </div>
+</div>
+ 
+<script>
+const certs = {
+  'forage-dl': {
+    from:'Forage',title:'Data Labeling Job Simulation',
+    desc:'Completed practical tasks in Batch Labeling & PII Awareness, and Review, Quality Control & Iteration. Hands-on experience with AI training data pipelines and annotation best practices.',
+    date:'June 3, 2026', id:'quBr98HMPBYuhLLqk', duration:'1 month'
+  },
+  'bcg': {
+    from:'BCG × Forage',title:'Introduction to Data for Decision Makers',
+    desc:'BCG-curated simulation covering how to interpret and leverage data insights for strategic business decisions in a consulting context.',
+    date:'May 2026', id:'Forage Verified', duration:'Job Simulation'
+  },
+  'tata': {
+    from:'Tata × Forage',title:'GenAI Powered Data Analytics',
+    desc:'Practical exposure to using Generative AI tools for enterprise-grade data analytics tasks in a Tata-style business context.',
+    date:'May 2026', id:'Forage Verified', duration:'Job Simulation'
+  },
+  'deloitte': {
+    from:'Deloitte × Forage',title:'Data Analytics Job Simulation',
+    desc:'Simulated consulting analytics work at Deloitte — data cleaning, analysis, visualization, and presenting insights to stakeholders.',
+    date:'May 2026', id:'Forage Verified', duration:'Job Simulation'
+  },
+  'n8n': {
+    from:'LetsUpgrade · NSDC · GDG MAD',title:'Automate Everything With n8n',
+    desc:'Intensive bootcamp on workflow automation using n8n — covering integrations, triggers, webhooks, and end-to-end automated pipelines.',
+    date:'May 15, 2026', id:'LUEN8NMAY126249', duration:'1 Day Bootcamp'
+  },
+  'sql': {
+    from:'LetsUpgrade · NSDC · GDG MAD',title:'SQL Bootcamp',
+    desc:'3-day intensive SQL bootcamp covering queries, joins, aggregations, subqueries, and database design fundamentals.',
+    date:'May 4–6, 2026', id:'LUESQLMAY126186', duration:'3 Day Bootcamp'
+  }
+};
+ 
+function showModal(id) {
+  const d = certs[id];
+  document.getElementById('mb').innerHTML = `
+    <div class="modal-from">${d.from}</div>
+    <div class="modal-title">${d.title}</div>
+    <p class="modal-desc">${d.desc}</p>
+    <div class="modal-grid">
+      <div class="modal-kv"><div class="modal-k">Issued</div><div class="modal-v">${d.date}</div></div>
+      <div class="modal-kv"><div class="modal-k">Format</div><div class="modal-v">${d.duration}</div></div>
+      <div class="modal-kv" style="grid-column:1/-1"><div class="modal-k">Certificate ID</div><div class="modal-v">${d.id}</div></div>
+    </div>`;
+  document.getElementById('mw').classList.add('open');
+}
+function closeM(e){ if(e.target===document.getElementById('mw')) document.getElementById('mw').classList.remove('open'); }
+function closeM2(){ document.getElementById('mw').classList.remove('open'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.getElementById('mw').classList.remove('open'); });
+ 
+// ════════════════════════════════════════════
+//  SCROLL FADE-UP
+// ════════════════════════════════════════════
+const fuEls = document.querySelectorAll('.fu');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.style.animationPlayState='running'; });
+}, { threshold: 0.1 });
+fuEls.forEach(el => {
+  if(!el.closest('.hero') && !el.closest('nav')) el.style.animationPlayState='paused';
+  obs.observe(el);
+});
+ 
+// ════════════════════════════════════════════
+//  HERO — PARTICLE FIELD (Three.js)
+// ════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+ 
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 200);
+  camera.position.z = 30;
+ 
+  function resize() {
+    const w = canvas.parentElement.offsetWidth;
+    const h = canvas.parentElement.offsetHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+ 
+  const N = 1000;
+  const positions = new Float32Array(N * 3);
+  const sizes = new Float32Array(N);
+  for(let i = 0; i < N; i++) {
+    positions[i*3]   = (Math.random() - 0.5) * 80;
+    positions[i*3+1] = (Math.random() - 0.5) * 80;
+    positions[i*3+2] = (Math.random() - 0.5) * 50;
+    sizes[i] = Math.random() * 1.2 + 0.3;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+ 
+  const mat = new THREE.PointsMaterial({
+    color: 0xc84b2f,
+    size: 0.24,
+    transparent: true,
+    opacity: 0.6,
+    sizeAttenuation: true,
+  });
+  const particles = new THREE.Points(geo, mat);
+  scene.add(particles);
+ 
+  const octGeo = new THREE.OctahedronGeometry(6, 0);
+  const octMat = new THREE.MeshBasicMaterial({ color: 0xc84b2f, wireframe: true, transparent: true, opacity: 0.18 });
+  const oct = new THREE.Mesh(octGeo, octMat);
+  oct.position.set(14, 2, -5);
+  scene.add(oct);
+ 
+  const torusGeo = new THREE.TorusGeometry(5, 0.06, 8, 60);
+  const torusMat = new THREE.MeshBasicMaterial({ color: 0x3a6ea8, transparent: true, opacity: 0.22 });
+  const torus = new THREE.Mesh(torusGeo, torusMat);
+  torus.position.set(-14, -2, -8);
+  scene.add(torus);
+ 
+  const torus2Geo = new THREE.TorusGeometry(3.2, 0.04, 8, 48);
+  const torus2Mat = new THREE.MeshBasicMaterial({ color: 0xc84b2f, transparent: true, opacity: 0.2 });
+  const torus2 = new THREE.Mesh(torus2Geo, torus2Mat);
+  torus2.position.set(16, -6, -4);
+  torus2.rotation.x = Math.PI / 3;
+  scene.add(torus2);
+ 
+  let mx = 0, my = 0;
+  document.addEventListener('mousemove', e => {
+    mx = (e.clientX / window.innerWidth - 0.5) * 2;
+    my = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+ 
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.008;
+    particles.rotation.y = t * 0.04;
+    particles.rotation.x = t * 0.015;
+    oct.rotation.x = t * 0.4;
+    oct.rotation.y = t * 0.55;
+    torus.rotation.z = t * 0.25;
+    torus.rotation.x = t * 0.15 + 0.5;
+    torus2.rotation.y = t * 0.35;
+    torus2.rotation.z = t * 0.2;
+ 
+    camera.position.x += (mx * 2 - camera.position.x) * 0.04;
+    camera.position.y += (-my * 1.5 - camera.position.y) * 0.04;
+    camera.lookAt(scene.position);
+ 
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+ 
+// ════════════════════════════════════════════
+//  PHOTO SECTION — ORBITAL SPHERE (Three.js)
+// ════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('photo-canvas');
+  const section = document.getElementById('photo-sec');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+ 
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+  camera.position.z = 22;
+ 
+  function resize() {
+    const w = section.offsetWidth;
+    const h = section.offsetHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+ 
+  const icoGeo = new THREE.IcosahedronGeometry(4.5, 1);
+  const icoMat = new THREE.MeshBasicMaterial({ color: 0xc84b2f, wireframe: true, transparent: true, opacity: 0.22 });
+  const ico = new THREE.Mesh(icoGeo, icoMat);
+  scene.add(ico);
+ 
+  function makeRing(r, tilt, opacity) {
+    const g = new THREE.TorusGeometry(r, 0.025, 6, 80);
+    const m = new THREE.MeshBasicMaterial({ color: 0xc84b2f, transparent: true, opacity });
+    const mesh = new THREE.Mesh(g, m);
+    mesh.rotation.x = tilt;
+    return mesh;
+  }
+  const ring1 = makeRing(7, Math.PI / 4, 0.32);
+  const ring2 = makeRing(9, -Math.PI / 5, 0.22);
+  const ring3 = makeRing(11, Math.PI / 2.2, 0.16);
+  scene.add(ring1, ring2, ring3);
+ 
+  function makeDot(r, speed, offset, size) {
+    const g = new THREE.SphereGeometry(size, 6, 6);
+    const m = new THREE.MeshBasicMaterial({ color: 0xc84b2f });
+    const mesh = new THREE.Mesh(g, m);
+    mesh._r = r; mesh._speed = speed; mesh._offset = offset;
+    return mesh;
+  }
+  const dots = [
+    makeDot(7, 0.8, 0, 0.15),
+    makeDot(9, -0.5, 1.2, 0.1),
+    makeDot(11, 0.35, 2.5, 0.12),
+    makeDot(7, 0.8, Math.PI, 0.1),
+  ];
+  dots.forEach(d => scene.add(d));
+ 
+  const pN = 250;
+  const pPos = new Float32Array(pN * 3);
+  for(let i=0;i<pN;i++){
+    pPos[i*3]=(Math.random()-.5)*50;
+    pPos[i*3+1]=(Math.random()-.5)*50;
+    pPos[i*3+2]=(Math.random()-.5)*30;
+  }
+  const pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  const pMat = new THREE.PointsMaterial({ color:0xc84b2f, size:0.18, transparent:true, opacity:0.4 });
+  scene.add(new THREE.Points(pGeo, pMat));
+ 
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.01;
+    ico.rotation.x = t * 0.2;
+    ico.rotation.y = t * 0.3;
+    ring1.rotation.z = t * 0.25;
+    ring2.rotation.z = -t * 0.18;
+    ring3.rotation.z = t * 0.12;
+ 
+    dots.forEach((d, i) => {
+      const angle = t * d._speed + d._offset;
+      const tilt = i * 0.7;
+      d.position.x = Math.cos(angle) * d._r;
+      d.position.y = Math.sin(angle) * d._r * Math.sin(tilt);
+      d.position.z = Math.sin(angle) * d._r * Math.cos(tilt);
+    });
+ 
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+ 
+// ════════════════════════════════════════════
+//  SEPARATOR 1 — WAVE GRID
+// ════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('sep1-canvas');
+  const wrap = document.getElementById('sep1-wrap');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+ 
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+  camera.position.z = 20;
+ 
+  function resize() {
+    const w = wrap.offsetWidth; const h = wrap.offsetHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+ 
+  const cols = 40, rows = 16;
+  const spacing = 1.2;
+  const pointsGroup = new THREE.Group();
+  const waveDots = [];
+  for(let c=0;c<cols;c++){
+    for(let r=0;r<rows;r++){
+      const g = new THREE.SphereGeometry(0.06, 4, 4);
+      const m = new THREE.MeshBasicMaterial({ color:0xc84b2f, transparent:true, opacity: 0.55 });
+      const mesh = new THREE.Mesh(g, m);
+      mesh.position.x = (c - cols/2) * spacing;
+      mesh.position.y = (r - rows/2) * spacing * 0.6;
+      mesh._c = c; mesh._r = r;
+      pointsGroup.add(mesh);
+      waveDots.push(mesh);
+    }
+  }
+  scene.add(pointsGroup);
+ 
+  for(let r=0;r<rows;r++){
+    const pts = [];
+    for(let c=0;c<cols;c++){
+      pts.push(new THREE.Vector3((c-cols/2)*spacing, (r-rows/2)*spacing*0.6, 0));
+    }
+    const g = new THREE.BufferGeometry().setFromPoints(pts);
+    const m = new THREE.LineBasicMaterial({ color:0xc84b2f, transparent:true, opacity:0.12 });
+    scene.add(new THREE.Line(g, m));
+  }
+ 
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.025;
+    waveDots.forEach(d => {
+      const wave = Math.sin(d._c * 0.35 + t) * Math.cos(d._r * 0.5 + t * 0.4);
+      d.position.z = wave * 1.8;
+      d.material.opacity = 0.25 + (wave + 1) * 0.3;
+    });
+    pointsGroup.rotation.y = Math.sin(t * 0.1) * 0.15;
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+ 
+// ════════════════════════════════════════════
+//  SEPARATOR 2 — FLOATING CUBES
+// ════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('sep2-canvas');
+  const wrap = document.getElementById('sep2-wrap');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+ 
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
+  camera.position.z = 22;
+ 
+  function resize() {
+    const w = wrap.offsetWidth; const h = wrap.offsetHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+ 
+  const cubes = [];
+  for(let i=0;i<18;i++){
+    const s = Math.random() * 1.2 + 0.3;
+    const g = new THREE.BoxGeometry(s, s, s);
+    const m = new THREE.MeshBasicMaterial({ color:0xc84b2f, wireframe:true, transparent:true, opacity: Math.random()*0.35+0.15 });
+    const mesh = new THREE.Mesh(g, m);
+    mesh.position.set(
+      (Math.random()-.5)*36,
+      (Math.random()-.5)*12,
+      (Math.random()-.5)*14
+    );
+    mesh._rx = (Math.random()-.5)*0.025;
+    mesh._ry = (Math.random()-.5)*0.025;
+    mesh._float = Math.random() * Math.PI * 2;
+    mesh._floatSpeed = Math.random()*0.5+0.3;
+    scene.add(mesh);
+    cubes.push(mesh);
+  }
+ 
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.01;
+    cubes.forEach(c => {
+      c.rotation.x += c._rx;
+      c.rotation.y += c._ry;
+      c.position.y += Math.sin(t * c._floatSpeed + c._float) * 0.012;
+    });
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+ 
+// ════════════════════════════════════════════
+//  CONTACT — ABSTRACT SPHERE
+// ════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('contact-canvas');
+  const section = document.getElementById('contact');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+ 
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
+  camera.position.z = 18;
+ 
+  function resize() {
+    const w = section.offsetWidth; const h = section.offsetHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+ 
+  const sGeo = new THREE.SphereGeometry(5.5, 18, 14);
+  const sMat = new THREE.MeshBasicMaterial({ color:0xc84b2f, wireframe:true, transparent:true, opacity:0.2 });
+  const sphere = new THREE.Mesh(sGeo, sMat);
+  scene.add(sphere);
+ 
+  for(let i=0;i<3;i++){
+    const g = new THREE.TorusGeometry(7+i*1.8, 0.03, 6, 80);
+    const m = new THREE.MeshBasicMaterial({ color:0xc84b2f, transparent:true, opacity:0.18-i*0.04 });
+    const mesh = new THREE.Mesh(g, m);
+    mesh.rotation.x = i * 0.9;
+    mesh.rotation.y = i * 0.6;
+    mesh._speed = 0.18 - i * 0.04;
+    scene.add(mesh);
+  }
+ 
+  const meshes = scene.children.filter(c => c.isMesh);
+ 
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.008;
+    sphere.rotation.y = t * 0.3;
+    sphere.rotation.x = t * 0.15;
+    meshes.slice(1).forEach((m,i) => {
+      m.rotation.z += 0.006 * (i%2===0?1:-1);
+    });
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>
+ 
