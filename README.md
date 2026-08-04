@@ -1,11 +1,11 @@
 <div align="center">
 
-Harsh Tiwari
+<h1> Harsh Tiwari </h1>
 Software Engineer • AI Enthusiast • Building Real-World Solutions
 
 "I enjoy transforming ideas into software that is practical, scalable, and meaningful."
 
-Portfolio: https://portfolio-rouge-mu-3osd09cat3.vercel.app/ • GitHub: www.linkedin.com/in/harshkumartiwari7112 • GitHub: https://github.com/Geld-zuerst
+<a href=https://portfolio-rouge-mu-3osd09cat3.vercel.app/>Portfolio</a> • <a href = www.linkedin.com/in/harshkumartiwari7112> LinkedIn </a> • <a href = https://github.com/Geld-zuerst>GitHub </a>
 
 </div>
 
