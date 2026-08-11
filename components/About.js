@@ -70,8 +70,19 @@ export default function About() {
               <div>
                 <div className="meta-label">GitHub</div>
                 <div className="meta-val">
-                  <a href="https://github.com/Harsh7112" target="_blank" rel="noreferrer">
-                    github.com/Harsh7112
+                  <a href="https://github.com/Geld-zuerst" target="_blank" rel="noreferrer">
+                    github.com/Geld-zuerst
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="meta-row">
+              <span className="meta-icon">◎</span>
+              <div>
+                <div className="meta-label">Linkedin</div>
+                <div className="meta-val">
+                  <a href="www.linkedin.com/in/harshkumartiwari7112" target="_blank" rel="noreferrer">
+                    www.linkedin.com/in/harshkumartiwari7112
                   </a>
                 </div>
               </div>
