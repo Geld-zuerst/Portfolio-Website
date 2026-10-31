@@ -52,8 +52,8 @@ export default function About() {
               <div>
                 <div className="meta-label">Experience</div>
                 <div className="meta-val" style={{ color: "var(--accent)", fontWeight: 700 }}>
-                  2+ Yrs · Agency-style Delivery
-                  3 months at Creonex as Data Analyst
+                  <p>2+ Yrs · Agency-style Delivery</p>
+                  <p>3 months at Creonex as Data Analyst</p>
                 </div>
               </div>
             </div>
@@ -62,7 +62,7 @@ export default function About() {
               <div>
                 <div className="meta-label">Email</div>
                 <div className="meta-val">
-                  <a href="mailto:harsh.tiwari7112@gmail.com">Mail</a>
+                  <a href="mailto:harsh.tiwari7112@gmail.com" style="color: coral; text-decoration: none;">Mail</a>
                 </div>
               </div>
             </div>
@@ -71,7 +71,7 @@ export default function About() {
               <div>
                 <div className="meta-label">GitHub</div>
                 <div className="meta-val">
-                  <a href="https://github.com/Geld-zuerst" target="_blank" rel="noreferrer">
+                  <a href="https://github.com/Geld-zuerst" target="_blank" rel="noreferrer" style="color: coral; text-decoration: none;">
                     GitHub
                   </a>
                 </div>
@@ -82,7 +82,7 @@ export default function About() {
               <div>
                 <div className="meta-label">Linkedin</div>
                 <div className="meta-val">
-                  <a href="https://www.linkedin.com/in/harshkumartiwari7112/" target="_blank" rel="noreferrer">
+                  <a href="https://www.linkedin.com/in/harshkumartiwari7112/" target="_blank" rel="noreferrer" style="color: coral; text-decoration: none;">
                     Linkedln
                   </a>
                 </div>
