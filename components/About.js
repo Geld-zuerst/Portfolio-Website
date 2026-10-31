@@ -44,7 +44,7 @@ export default function About() {
               <span className="meta-icon">◎</span>
               <div>
                 <div className="meta-label">Role</div>
-                <div className="meta-val">Python Developer & Vibe Coder</div>
+                <div className="meta-val">Python Developer, Vibe Coder & Data Analyst</div>
               </div>
             </div>
             <div className="meta-row">
@@ -53,6 +53,7 @@ export default function About() {
                 <div className="meta-label">Experience</div>
                 <div className="meta-val" style={{ color: "var(--accent)", fontWeight: 700 }}>
                   2+ Yrs · Agency-style Delivery
+                  3 months at Creonex as Data Analyst
                 </div>
               </div>
             </div>
