@@ -146,7 +146,7 @@ section.free { padding: 92px 5vw; max-width:1040px; margin:0 auto; }
 .meta-label { font-family: var(--font-mono); font-size:.65rem;color:var(--faint);text-transform:uppercase;letter-spacing:.1em; }
 .meta-val { font-size:.86rem;color:var(--ink);font-weight:500; }
 .meta-val a { color: var(--accent2); text-decoration: none; }
-.meta-val a:hover { text-decoration: underline; }
+.meta-val a:hover { text-decoration: none; color: coral; }
 .story-chapters { display:flex;flex-direction:column;gap:44px; }
 .chapter { position:relative; }
 .chapter-num { font-family: var(--font-display);font-size:5.4rem;font-weight:700;color:var(--accent);opacity:.08;line-height:1;position:absolute;top:-16px;left:-8px;pointer-events:none;user-select:none; }
