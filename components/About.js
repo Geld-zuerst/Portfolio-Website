@@ -52,8 +52,8 @@ export default function About() {
               <div>
                 <div className="meta-label">Experience</div>
                 <div className="meta-val" style={{ color: "var(--accent)", fontWeight: 700 }}>
-                  <p>2+ Yrs · Agency-style Delivery</p>
                   <p>3 months at Creonex as Data Analyst</p>
+                  <p>2+ Yrs · Agency-style Delivery</p>
                 </div>
               </div>
             </div>
@@ -95,7 +95,7 @@ export default function About() {
               <div className="chapter-tag">The Foundation</div>
               <h3 className="chapter-title">Fresh Out of Class 12, Fully Focused</h3>
               <p className="chapter-body">
-                Recently completed <strong>Class 12 (PCM)</strong> and fully focused on building a technical career.
+                Recently completed <strong>Class 12th (PCM)</strong> and fully focused on building a technical career.
                 Strong interest in <strong>technology, problem-solving, and continuous learning</strong> — with the
                 work ethic to back it up.
               </p>
