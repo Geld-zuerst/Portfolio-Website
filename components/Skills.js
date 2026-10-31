@@ -11,7 +11,7 @@ export default function Skills() {
           <div>
             <div className="skill-group-label">Proficient</div>
             <div className="pills-wrap">
-              {["Python", "NumPy", "Pandas", "Matplotlib", "Seaborn", "SQL", "Data Analytics", "AI-Dev", "Git / GitHub", "HTML & CSS"].map(
+              {["Django", "Python", "NumPy", "Pandas", "Matplotlib", "Seaborn", "SQL", "Data Analytics", "AI-Dev", "Git / GitHub"].map(
                 (s) => (
                   <span className="pill hot" key={s}>
                     {s}
@@ -37,7 +37,7 @@ export default function Skills() {
           </div>
           <div className="pills-wrap">
             {[
-              "🧩 Systems Thinking",
+              "🧩 Analytical Thinking",
               "⚡ Fast Learning",
               "🎯 Strategic Planning",
               "🔍 Workflow Analysis",
