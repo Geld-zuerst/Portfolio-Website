@@ -62,7 +62,7 @@ export default function About() {
               <div>
                 <div className="meta-label">Email</div>
                 <div className="meta-val">
-                  <a href="mailto:harsh.tiwari7112@gmail.com" style="color: coral; text-decoration: none;">Mail</a>
+                  <a href="mailto:harsh.tiwari7112@gmail.com">Mail</a>
                 </div>
               </div>
             </div>
@@ -71,7 +71,7 @@ export default function About() {
               <div>
                 <div className="meta-label">GitHub</div>
                 <div className="meta-val">
-                  <a href="https://github.com/Geld-zuerst" target="_blank" rel="noreferrer" style="color: coral; text-decoration: none;">
+                  <a href="https://github.com/Geld-zuerst" target="_blank" rel="noreferrer">
                     GitHub
                   </a>
                 </div>
@@ -82,7 +82,7 @@ export default function About() {
               <div>
                 <div className="meta-label">Linkedin</div>
                 <div className="meta-val">
-                  <a href="https://www.linkedin.com/in/harshkumartiwari7112/" target="_blank" rel="noreferrer" style="color: coral; text-decoration: none;">
+                  <a href="https://www.linkedin.com/in/harshkumartiwari7112/" target="_blank" rel="noreferrer">
                     Linkedln
                   </a>
                 </div>
