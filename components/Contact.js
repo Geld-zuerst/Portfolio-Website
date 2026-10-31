@@ -17,7 +17,7 @@ export default function Contact() {
         <a href="mailto:harsh.tiwari7112@gmail.com" className="btn-primary">
           Say Hello →
         </a>
-        <a href="https://github.com/Harsh7112" target="_blank" rel="noreferrer" className="btn-secondary">
+        <a href="https://www.linkedin.com/in/harshkumartiwari7112/" target="_blank" rel="noreferrer" className="btn-secondary">
           github.com/Harsh7112
         </a>
       </div>
